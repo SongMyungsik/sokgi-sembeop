@@ -288,12 +288,14 @@ class _AdditionPageState extends State<AdditionPage> {
   Widget _keypad() {
     Widget key(int d) => Expanded(
           child: Padding(
-            padding: const EdgeInsets.all(3),
+            padding: const EdgeInsets.all(2),
             child: SizedBox(
-              height: 50,
+              height: 36,
               child: OutlinedButton(
                 style: OutlinedButton.styleFrom(
                   padding: EdgeInsets.zero,
+                  minimumSize: Size.zero,
+                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(8),
                   ),
@@ -301,7 +303,7 @@ class _AdditionPageState extends State<AdditionPage> {
                 onPressed: _pFinished ? null : () => _enter(d),
                 child: Text(
                   '$d',
-                  style: const TextStyle(fontSize: 20, fontFamily: 'monospace'),
+                  style: const TextStyle(fontSize: 18, fontFamily: 'monospace'),
                 ),
               ),
             ),
@@ -614,9 +616,7 @@ class _AdditionPageState extends State<AdditionPage> {
       } else {
         if (_showAid) activeCol = st.col;
         title = st.kind == 'R' ? '$name의 누계' : '$name의 표시 수';
-        ask = st.kind == 'R'
-            ? '위에서 아래로 더하고 남은 수는 얼마일까요?'
-            : '11을 뺀 횟수는 몇 번일까요?';
+        ask = st.kind == 'R' ? '위에서 아래로 더하고 남은 수는 얼마일까요?' : '11을 뺀 횟수는 몇 번일까요?';
         hint = _pMisses >= 2
             ? s.columns[st.col].walkText
             : '위에서부터 다시 더해 보세요. 11 이상이 되면 11을 빼고 표시를 하나 합니다.';
@@ -636,125 +636,130 @@ class _AdditionPageState extends State<AdditionPage> {
       }
     }
 
-    return Card(
-      margin: const EdgeInsets.all(12),
-      child: Padding(
-        padding: const EdgeInsets.all(12),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // 왼쪽: 설정과 새 문제, 오른쪽: 숫자판 (세로 공간을 숫자판에 몰아 준다)
-            Expanded(
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  FittedBox(
-                    fit: BoxFit.scaleDown,
-                    alignment: Alignment.topLeft,
-                    child: SizedBox(
-                      width: 104,
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          OutlinedButton(
-                            onPressed: _newProblem,
-                            child: const Text('새 문제'),
-                          ),
-                          const SizedBox(height: 12),
-                          DropdownButton<int>(
-                            isDense: true,
-                            value: _count,
-                            items: const [
-                              DropdownMenuItem<int>(
-                                  value: 3, child: Text('수 3개')),
-                              DropdownMenuItem<int>(
-                                  value: 4, child: Text('수 4개')),
-                              DropdownMenuItem<int>(
-                                  value: 6, child: Text('수 6개')),
-                              DropdownMenuItem<int>(
-                                  value: 8, child: Text('수 8개')),
-                            ],
-                            onChanged: (v) {
-                              if (v == null) return;
-                              _count = v;
-                              _newProblem();
-                            },
-                          ),
-                          const SizedBox(height: 12),
-                          DropdownButton<int>(
-                            isDense: true,
-                            value: _digits,
-                            items: const [
-                              DropdownMenuItem<int>(
-                                  value: 2, child: Text('두 자리')),
-                              DropdownMenuItem<int>(
-                                  value: 3, child: Text('세 자리')),
-                              DropdownMenuItem<int>(
-                                  value: 4, child: Text('네 자리')),
-                              DropdownMenuItem<int>(
-                                  value: 5, child: Text('다섯 자리')),
-                              DropdownMenuItem<int>(
-                                  value: 6, child: Text('여섯 자리')),
-                              DropdownMenuItem<int>(
-                                  value: 7, child: Text('일곱 자리')),
-                            ],
-                            onChanged: (v) {
-                              if (v == null) return;
-                              _digits = v;
-                              _newProblem();
-                            },
-                          ),
-                          const SizedBox(height: 8),
-                          Row(
-                            children: [
-                              Checkbox(
-                                visualDensity: VisualDensity.compact,
-                                materialTapTargetSize:
-                                    MaterialTapTargetSize.shrinkWrap,
-                                value: _showAid,
-                                onChanged: (v) =>
-                                    setState(() => _showAid = v ?? true),
-                              ),
-                              const Flexible(child: Text('열·칸 표시')),
-                            ],
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: FittedBox(
+    // 시스템 글자 크기를 크게 해 둔 폰에서는 안내문·버튼이 커지면서
+    // 숫자판이 줄어든다. 연습 화면에서는 글자 배율을 1배로 고정한다.
+    return MediaQuery.withClampedTextScaling(
+      maxScaleFactor: 1.0,
+      child: Card(
+        margin: const EdgeInsets.all(12),
+        child: Padding(
+          padding: const EdgeInsets.all(12),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // 왼쪽: 설정과 새 문제, 오른쪽: 숫자판 (세로 공간을 숫자판에 몰아 준다)
+              Expanded(
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    FittedBox(
                       fit: BoxFit.scaleDown,
-                      alignment: Alignment.topRight,
-                      child: AdditionBoardView(
-                        solution: s,
-                        tickCells: tickCells,
-                        runningCols: runningCols,
-                        tickCountCols: tickCountCols,
-                        answerDone: answerDone,
-                        highlights: highlights,
-                        slot: slot,
-                        activeCol: activeCol,
-                        scroll: false,
+                      alignment: Alignment.topLeft,
+                      child: SizedBox(
+                        width: 104,
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            OutlinedButton(
+                              onPressed: _newProblem,
+                              child: const Text('새 문제'),
+                            ),
+                            const SizedBox(height: 12),
+                            DropdownButton<int>(
+                              isDense: true,
+                              value: _count,
+                              items: const [
+                                DropdownMenuItem<int>(
+                                    value: 3, child: Text('수 3개')),
+                                DropdownMenuItem<int>(
+                                    value: 4, child: Text('수 4개')),
+                                DropdownMenuItem<int>(
+                                    value: 6, child: Text('수 6개')),
+                                DropdownMenuItem<int>(
+                                    value: 8, child: Text('수 8개')),
+                              ],
+                              onChanged: (v) {
+                                if (v == null) return;
+                                _count = v;
+                                _newProblem();
+                              },
+                            ),
+                            const SizedBox(height: 12),
+                            DropdownButton<int>(
+                              isDense: true,
+                              value: _digits,
+                              items: const [
+                                DropdownMenuItem<int>(
+                                    value: 2, child: Text('두 자리')),
+                                DropdownMenuItem<int>(
+                                    value: 3, child: Text('세 자리')),
+                                DropdownMenuItem<int>(
+                                    value: 4, child: Text('네 자리')),
+                                DropdownMenuItem<int>(
+                                    value: 5, child: Text('다섯 자리')),
+                                DropdownMenuItem<int>(
+                                    value: 6, child: Text('여섯 자리')),
+                                DropdownMenuItem<int>(
+                                    value: 7, child: Text('일곱 자리')),
+                              ],
+                              onChanged: (v) {
+                                if (v == null) return;
+                                _digits = v;
+                                _newProblem();
+                              },
+                            ),
+                            const SizedBox(height: 8),
+                            Row(
+                              children: [
+                                Checkbox(
+                                  visualDensity: VisualDensity.compact,
+                                  materialTapTargetSize:
+                                      MaterialTapTargetSize.shrinkWrap,
+                                  value: _showAid,
+                                  onChanged: (v) =>
+                                      setState(() => _showAid = v ?? true),
+                                ),
+                                const Flexible(child: Text('열·칸 표시')),
+                              ],
+                            ),
+                          ],
+                        ),
                       ),
                     ),
-                  ),
-                ],
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: FittedBox(
+                        fit: BoxFit.scaleDown,
+                        alignment: Alignment.topRight,
+                        child: AdditionBoardView(
+                          solution: s,
+                          tickCells: tickCells,
+                          runningCols: runningCols,
+                          tickCountCols: tickCountCols,
+                          answerDone: answerDone,
+                          highlights: highlights,
+                          slot: slot,
+                          activeCol: activeCol,
+                          scroll: false,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               ),
-            ),
-            const SizedBox(height: 8),
-            message,
-            const SizedBox(height: 8),
-            _keypad(),
-            const SizedBox(height: 4),
-            Text(
-              '푼 문제 $_solved    한 번에 맞힌 칸 $rate',
-              style: theme.textTheme.bodySmall
-                  ?.copyWith(color: theme.colorScheme.onSurfaceVariant),
-            ),
-          ],
+              const SizedBox(height: 8),
+              message,
+              const SizedBox(height: 8),
+              _keypad(),
+              const SizedBox(height: 4),
+              Text(
+                '푼 문제 $_solved    한 번에 맞힌 칸 $rate',
+                style: theme.textTheme.bodySmall
+                    ?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+              ),
+            ],
+          ),
         ),
       ),
     );
