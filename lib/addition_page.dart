@@ -61,7 +61,7 @@ class AdditionPage extends StatefulWidget {
 class _AdditionPageState extends State<AdditionPage> {
   final Random _random = Random();
   final TextEditingController _inputController =
-      TextEditingController(text: '786 459 878 697');
+      TextEditingController(text: '786\n459\n878\n697');
   String? _inputError;
 
   // 풀이 보기
@@ -144,7 +144,7 @@ class _AdditionPageState extends State<AdditionPage> {
       _order = _walkOrder(_sol);
       _done = 0;
       _inputError = null;
-      _inputController.text = numbers.join(' ');
+      _inputController.text = numbers.join('\n');
     });
   }
 
@@ -271,17 +271,6 @@ class _AdditionPageState extends State<AdditionPage> {
       ));
     }
     return Row(children: children);
-  }
-
-  /// 숫자판을 남은 공간에 맞게 줄여서 보여 준다 (스크롤 없음).
-  Widget _fitBoard(Widget board) {
-    return Expanded(
-      child: FittedBox(
-        fit: BoxFit.scaleDown,
-        alignment: Alignment.topLeft,
-        child: board,
-      ),
-    );
   }
 
   /// 0~10 숫자 버튼 (6개, 5개 두 줄)
@@ -491,44 +480,86 @@ class _AdditionPageState extends State<AdditionPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Expanded(
-                  child: TextField(
-                    controller: _inputController,
-                    decoration: InputDecoration(
-                      labelText: '더할 수 (띄어쓰기로 구분, 10개까지)',
-                      isDense: true,
-                      border: const OutlineInputBorder(),
-                      errorText: _inputError,
+            // 왼쪽: 숫자판, 오른쪽: 풀기·무작위 버튼과 더할 수 입력칸
+            Expanded(
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(
+                    child: FittedBox(
+                      fit: BoxFit.scaleDown,
+                      alignment: Alignment.topLeft,
+                      child: AdditionBoardView(
+                        solution: s,
+                        tickCells: tickCells,
+                        runningCols: shownCols,
+                        tickCountCols: shownCols,
+                        answerDone: answerDone,
+                        currentCell: currentCell,
+                        highlights: highlights,
+                        slot: slot,
+                        scroll: false,
+                      ),
                     ),
-                    onSubmitted: (_) => _applyInput(),
                   ),
-                ),
-                const SizedBox(width: 8),
-                FilledButton.tonal(
-                  onPressed: _applyInput,
-                  child: const Text('풀기'),
-                ),
-                TextButton(
-                  onPressed: () => _setSolve(_randomNumbers(5, 4)),
-                  child: const Text('무작위'),
-                ),
-              ],
+                  const SizedBox(width: 8),
+                  SizedBox(
+                    width: 116,
+                    child: SingleChildScrollView(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          Row(
+                            children: [
+                              Expanded(
+                                child: FilledButton.tonal(
+                                  style: FilledButton.styleFrom(
+                                    padding: EdgeInsets.zero,
+                                    minimumSize: const Size(0, 36),
+                                  ),
+                                  onPressed: _applyInput,
+                                  child: const Text('풀기'),
+                                ),
+                              ),
+                              const SizedBox(width: 4),
+                              Expanded(
+                                child: TextButton(
+                                  style: TextButton.styleFrom(
+                                    padding: EdgeInsets.zero,
+                                    minimumSize: const Size(0, 36),
+                                  ),
+                                  onPressed: () =>
+                                      _setSolve(_randomNumbers(5, 4)),
+                                  child: const FittedBox(child: Text('무작위')),
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 8),
+                          // 한 줄에 한 수. 5줄을 넘으면 칸 안에서 스크롤된다.
+                          TextField(
+                            controller: _inputController,
+                            keyboardType: TextInputType.multiline,
+                            minLines: 3,
+                            maxLines: 5,
+                            style: const TextStyle(fontFamily: 'monospace'),
+                            decoration: InputDecoration(
+                              labelText: '더할 수',
+                              helperText: '한 줄에 하나, 10개까지',
+                              helperMaxLines: 2,
+                              errorMaxLines: 3,
+                              isDense: true,
+                              border: const OutlineInputBorder(),
+                              errorText: _inputError,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
-            const SizedBox(height: 12),
-            _fitBoard(AdditionBoardView(
-              solution: s,
-              tickCells: tickCells,
-              runningCols: shownCols,
-              tickCountCols: shownCols,
-              answerDone: answerDone,
-              currentCell: currentCell,
-              highlights: highlights,
-              slot: slot,
-              scroll: false,
-            )),
             const SizedBox(height: 8),
             message,
             const SizedBox(height: 8),

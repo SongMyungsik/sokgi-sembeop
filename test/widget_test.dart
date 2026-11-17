@@ -7,6 +7,12 @@ void main() {
     SharedPreferences.setMockInitialValues(<String, Object>{});
     await tester.pumpWidget(const NeighborMultiplyApp());
     await tester.pump();
+
+    // 첫 화면(앱 이름과 시작하기 버튼)
+    expect(find.text('속기 셈법'), findsOneWidget);
+    await tester.tap(find.text('시작하기'));
+    await tester.pumpAndSettle();
+
     expect(find.text('× 6 규칙'), findsOneWidget);
     expect(find.text('풀이 보기'), findsOneWidget);
     expect(find.text('연습하기'), findsOneWidget);
