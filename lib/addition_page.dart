@@ -290,7 +290,7 @@ class _AdditionPageState extends State<AdditionPage> {
           child: Padding(
             padding: const EdgeInsets.all(2),
             child: SizedBox(
-              height: 36,
+              height: 30,
               child: OutlinedButton(
                 style: OutlinedButton.styleFrom(
                   padding: EdgeInsets.zero,
@@ -303,7 +303,7 @@ class _AdditionPageState extends State<AdditionPage> {
                 onPressed: _pFinished ? null : () => _enter(d),
                 child: Text(
                   '$d',
-                  style: const TextStyle(fontSize: 18, fontFamily: 'monospace'),
+                  style: const TextStyle(fontSize: 16, fontFamily: 'monospace'),
                 ),
               ),
             ),
@@ -603,7 +603,6 @@ class _AdditionPageState extends State<AdditionPage> {
       slot = st.key;
       final name = _columnName(s, st.col);
       String title;
-      String ask;
       String hint;
       if (st.kind == 'A') {
         final step = s.answerSteps[s.cols - 1 - st.col];
@@ -611,12 +610,10 @@ class _AdditionPageState extends State<AdditionPage> {
           highlights.addAll(['R:${st.col}', 'T:${st.col}', 'T:${st.col + 1}']);
         }
         title = '답: $name';
-        ask = '이 자리에 적을 숫자는 무엇일까요?';
         hint = step.calc(reveal: _pMisses >= 2);
       } else {
         if (_showAid) activeCol = st.col;
         title = st.kind == 'R' ? '$name의 누계' : '$name의 표시 수';
-        ask = st.kind == 'R' ? '위에서 아래로 더하고 남은 수는 얼마일까요?' : '11을 뺀 횟수는 몇 번일까요?';
         hint = _pMisses >= 2
             ? s.columns[st.col].walkText
             : '위에서부터 다시 더해 보세요. 11 이상이 되면 11을 빼고 표시를 하나 합니다.';
@@ -631,7 +628,6 @@ class _AdditionPageState extends State<AdditionPage> {
         message = _AddInfoBox(
           color: theme.colorScheme.primary,
           title: title,
-          detail: ask,
         );
       }
     }
@@ -730,7 +726,7 @@ class _AdditionPageState extends State<AdditionPage> {
                     const SizedBox(width: 8),
                     Expanded(
                       child: FittedBox(
-                        fit: BoxFit.scaleDown,
+                        fit: BoxFit.contain,
                         alignment: Alignment.topRight,
                         child: AdditionBoardView(
                           solution: s,

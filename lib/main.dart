@@ -421,12 +421,14 @@ class _HomePageState extends State<HomePage> {
   Widget _keypad() {
     Widget key(int d) => Expanded(
           child: Padding(
-            padding: const EdgeInsets.all(3),
+            padding: const EdgeInsets.all(2),
             child: SizedBox(
-              height: 52,
+              height: 30,
               child: OutlinedButton(
                 style: OutlinedButton.styleFrom(
                   padding: EdgeInsets.zero,
+                  minimumSize: Size.zero,
+                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(8),
                   ),
@@ -434,7 +436,7 @@ class _HomePageState extends State<HomePage> {
                 onPressed: _pracFinished ? null : () => _enterDigit(d),
                 child: Text(
                   '$d',
-                  style: const TextStyle(fontSize: 22, fontFamily: 'monospace'),
+                  style: const TextStyle(fontSize: 16, fontFamily: 'monospace'),
                 ),
               ),
             ),

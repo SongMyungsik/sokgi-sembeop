@@ -65,8 +65,7 @@ class DirectPage extends StatefulWidget {
 
 class _DirectPageState extends State<DirectPage> {
   final Random _random = Random();
-  final TextEditingController _aController =
-      TextEditingController(text: '312');
+  final TextEditingController _aController = TextEditingController(text: '312');
   final TextEditingController _bController = TextEditingController(text: '24');
 
   // 풀이 보기
@@ -81,7 +80,8 @@ class _DirectPageState extends State<DirectPage> {
   bool _pracFinished = false;
   int _lenA = 2;
   int _lenB = 2;
-  bool _small = true;
+  // 연습 문제는 0~9 숫자를 모두 쓴다.
+  final bool _small = false;
   bool _showAid = true;
 
   // 기록
@@ -301,12 +301,14 @@ class _DirectPageState extends State<DirectPage> {
   Widget _keypad() {
     Widget key(int d) => Expanded(
           child: Padding(
-            padding: const EdgeInsets.all(3),
+            padding: const EdgeInsets.all(2),
             child: SizedBox(
-              height: 52,
+              height: 30,
               child: OutlinedButton(
                 style: OutlinedButton.styleFrom(
                   padding: EdgeInsets.zero,
+                  minimumSize: Size.zero,
+                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(8),
                   ),
@@ -314,7 +316,7 @@ class _DirectPageState extends State<DirectPage> {
                 onPressed: _pracFinished ? null : () => _enterDigit(d),
                 child: Text(
                   '$d',
-                  style: const TextStyle(fontSize: 22, fontFamily: 'monospace'),
+                  style: const TextStyle(fontSize: 16, fontFamily: 'monospace'),
                 ),
               ),
             ),
@@ -360,7 +362,8 @@ class _DirectPageState extends State<DirectPage> {
                   children: [
                     SizedBox(
                       width: 24,
-                      child: Text('${i + 1}.', style: theme.textTheme.bodyLarge),
+                      child:
+                          Text('${i + 1}.', style: theme.textTheme.bodyLarge),
                     ),
                     Expanded(
                       child: Text(lines[i], style: theme.textTheme.bodyLarge),
@@ -459,12 +462,12 @@ class _DirectPageState extends State<DirectPage> {
               children: [
                 Expanded(
                   flex: 3,
-                  child: _numberField(_aController, '곱해지는 수 (6자리까지)', 6),
+                  child: _numberField(_aController, '곱해지는 수 (5자리까지)', 5),
                 ),
                 const SizedBox(width: 8),
                 Expanded(
                   flex: 2,
-                  child: _numberField(_bController, '곱하는 수 (4자리까지)', 4),
+                  child: _numberField(_bController, '곱하는 수 (3자리까지)', 3),
                 ),
               ],
             ),
@@ -591,7 +594,6 @@ class _DirectPageState extends State<DirectPage> {
       message = _InfoBox(
         color: theme.colorScheme.primary,
         title: placeName(_pracDone),
-        detail: const TextSpan(text: '이 자리에 적을 숫자는 무엇일까요?'),
       );
     }
 
@@ -602,44 +604,29 @@ class _DirectPageState extends State<DirectPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Wrap(
-              spacing: 12,
-              runSpacing: 4,
-              crossAxisAlignment: WrapCrossAlignment.center,
+            // 곱해지는 수 자리 × 곱하는 수 자리, 오른쪽에 짝 표시
+            Row(
               children: [
-                const Text('곱해지는 수'),
                 _lengthDropdown(_lenA, 5, (v) {
                   _lenA = v;
                   _newProblem();
                 }),
-                const Text('곱하는 수'),
-                _lengthDropdown(_lenB, 4, (v) {
+                const Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 8),
+                  child: Text('×', style: TextStyle(fontSize: 18)),
+                ),
+                _lengthDropdown(_lenB, 3, (v) {
                   _lenB = v;
                   _newProblem();
                 }),
-              ],
-            ),
-            const SizedBox(height: 4),
-            Row(
-              children: [
-                Checkbox(
-                  visualDensity: VisualDensity.compact,
-                  materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                  value: _small,
-                  onChanged: (v) {
-                    _small = v ?? true;
-                    _newProblem();
-                  },
-                ),
-                const Flexible(child: Text('작은 숫자(0~4)만')),
-                const SizedBox(width: 8),
+                const Spacer(),
                 Checkbox(
                   visualDensity: VisualDensity.compact,
                   materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
                   value: _showAid,
                   onChanged: (v) => setState(() => _showAid = v ?? true),
                 ),
-                const Flexible(child: Text('짝 표시')),
+                const Text('짝 표시'),
               ],
             ),
             const SizedBox(height: 8),
@@ -705,8 +692,8 @@ class DirectBoardView extends StatelessWidget {
     required this.mark,
   });
 
-  static const double _w = 34;
-  static const double _h = 44;
+  static const double _w = 30;
+  static const double _h = 40;
   static const double _gap = 3;
 
   Widget _digitCell(String text, Color? pairColor, Color? textColor) {
@@ -726,7 +713,7 @@ class DirectBoardView extends StatelessWidget {
       child: Text(
         text,
         style: TextStyle(
-          fontSize: 24,
+          fontSize: 21,
           fontFamily: 'monospace',
           fontWeight: pairColor != null ? FontWeight.bold : FontWeight.normal,
           color: pairColor != null ? null : textColor,
@@ -806,7 +793,7 @@ class DirectBoardView extends StatelessWidget {
         child: Text(
           q < done ? '${solution.steps[q].write}' : '',
           style: const TextStyle(
-            fontSize: 24,
+            fontSize: 21,
             fontFamily: 'monospace',
             fontWeight: FontWeight.bold,
           ),
@@ -818,7 +805,7 @@ class DirectBoardView extends StatelessWidget {
       padding: const EdgeInsets.only(left: 2, right: 5),
       child: Text(
         '×',
-        style: TextStyle(fontSize: 20, color: scheme.onSurfaceVariant),
+        style: TextStyle(fontSize: 18, color: scheme.onSurfaceVariant),
       ),
     ));
     for (var m = 0; m < k; m++) {
@@ -829,8 +816,10 @@ class DirectBoardView extends StatelessWidget {
       ));
     }
 
-    return SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
+    // 화면 너비보다 넓으면 너비에 맞게 줄인다 (가로 스크롤 없음).
+    return FittedBox(
+      fit: BoxFit.scaleDown,
+      alignment: Alignment.centerLeft,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
